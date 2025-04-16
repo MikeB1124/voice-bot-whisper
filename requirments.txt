@@ -9,3 +9,5 @@ eventlet
 pyaudio
 keyboard
 websockets
+webrtcvad
+silero-vad

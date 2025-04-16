@@ -1,0 +1,55 @@
+import asyncio
+import wave
+import datetime
+import webrtcvad
+from websockets.asyncio.server import serve
+
+sample_rate = 16000
+frame_duration = 10  # ms
+frame_size = int(sample_rate * frame_duration / 1000) * 2  # bytes (16-bit audio)
+
+async def echo(websocket):
+    vad = webrtcvad.Vad()
+    vad.set_mode(3)
+    buffer = b""
+    frames = []
+    silence_duration = 0
+    silence_threshold = 0.5
+    async for message in websocket:
+        # print(f"Received: {message}")
+        buffer += message
+
+        while len(buffer) >= frame_size:
+            frame = buffer[:frame_size]
+            buffer = buffer[frame_size:]
+
+            try:
+                if vad.is_speech(frame, sample_rate):
+                    silence_duration = 0
+                    print("Speech detected")
+                else:
+                    # print("Silence detected")
+                    silence_duration += frame_duration / 1000
+                    if silence_duration >= silence_threshold:
+                        silence_duration = 0
+                        print("Silence threshold reached, stopping recording")
+            except Exception as e:
+                print(f"VAD error: {e}")
+        frames.append(message)
+
+
+
+        # Save the received frames to a WAV file
+        filename = f"output_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.wav"
+        # with wave.open("output.wav", "wb") as wf:
+        #     wf.setnchannels(1)
+        #     wf.setsampwidth(2)  # Assuming 16-bit audio
+        #     wf.setframerate(16000)
+        #     wf.writeframes(b''.join(frames))
+        print(f"Audio saved to {filename}")
+
+async def main():
+    async with serve(echo, "localhost", 8000) as server:
+        await server.serve_forever()
+
+asyncio.run(main())
