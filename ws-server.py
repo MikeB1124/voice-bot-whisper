@@ -5,7 +5,14 @@ import torch
 from collections import deque
 from websockets.asyncio.server import serve
 import wave
+from turbo import WhisperTurbo
+from llama import Llama3
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
 
+
+llamaClient = None
+turboWhisper = None
 # Constants
 SAMPLE_RATE = 16000
 WINDOW_SIZE = 512  # 32ms for 16kHz
@@ -19,6 +26,7 @@ model, utils = torch.hub.load(repo_or_dir='snakers4/silero-vad', model='silero_v
 
 # Audio helper
 def save_audio(frames):
+    global turboWhisper
     filename = f"output_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.wav"
     with wave.open(filename, "wb") as wf:
         wf.setnchannels(1)
@@ -26,6 +34,12 @@ def save_audio(frames):
         wf.setframerate(SAMPLE_RATE)
         wf.writeframes(b''.join(frames))
     print(f"💾 Audio saved to {filename}")
+    transcript = turboWhisper.transcribe(filename)
+    print(f"USER TRANSCRIPT: {transcript}")
+    llama_response = llamaClient.invoke_llama(transcript)
+    print(f"AGENT RESPONSE: {llama_response}")
+
+
 
 async def echo(websocket):
     buffer = b""
@@ -53,7 +67,7 @@ async def echo(websocket):
             prob_buffer.append(speech_prob)
             avg_prob = sum(prob_buffer) / len(prob_buffer)
 
-            print(f"Speech prob: {speech_prob:.2f} | Avg: {avg_prob:.2f}")
+            #print(f"Speech prob: {speech_prob:.2f} | Avg: {avg_prob:.2f}")
 
             if avg_prob > SPEECH_PROB_THRESHOLD:
                 print("✅ Speech detected")
@@ -65,15 +79,18 @@ async def echo(websocket):
                     if speech_detected_in_session:
                         print("🛑 Silence threshold reached, saving audio.")
                         save_audio(frames)
-                    else:
-                        print("⚠️ Silence but no speech detected — skipping save.")
+                    #else:
+                        #print("⚠️ Silence but no speech detected — skipping save.")
                     frames = []
                     silence_duration = 0.0
                     speech_detected_in_session = False
                     prob_buffer.clear()
 
 async def main():
-    async with serve(echo, "localhost", 8000) as server:
+    async with serve(echo, "0.0.0.0", 8000) as server:
+        global turboWhisper, llamaClient
+        llamaClient = Llama3("meta-llama/Llama-3.2-1B-Instruct")
+        turboWhisper = WhisperTurbo("openai/whisper-large-v3-turbo")
         print("🎙️ WebSocket VAD server started at ws://localhost:8000")
         await server.serve_forever()
 
