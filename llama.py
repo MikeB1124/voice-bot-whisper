@@ -38,5 +38,5 @@ class LLama3():
         )
 
         response_body = json.loads(response["body"].read())
-        return response_body
+        return response_body["generation"].strip()
 
