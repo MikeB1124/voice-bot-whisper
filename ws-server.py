@@ -36,7 +36,7 @@ def save_audio(frames):
     print(f"💾 Audio saved to {filename}")
     transcript = turboWhisper.transcribe(filename)
     print(f"USER TRANSCRIPT: {transcript}")
-    llama_response = llamaClient.invoke_llama(transcript)
+    llama_response = llamaClient.invoke_bedrock(transcript)
     print(f"AGENT RESPONSE: {llama_response}")
 
 

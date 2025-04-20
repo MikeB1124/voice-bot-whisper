@@ -11,7 +11,7 @@ class LLama3():
         self.bedrock_runtime = session.client('bedrock-runtime', region_name='us-west-2')
         self.system_prompt = "Your only job is to translate from one language to another. If you are given text in English you should translate it word for word to Spanish. If you are given text in Spanish you should translate it word for word to English. DO NOT add any other information to your response or answer any questoins."
 
-    def build_prompt(user_message: str, system_prompt: str):
+    def build_prompt(self, user_message: str, system_prompt: str):
         prompt_text = f"""<|begin_of_text|>
         <|start_header_id|>system<|end_header_id|>
         {system_prompt}
