@@ -4,7 +4,7 @@ import boto3
 import json
 
 
-class LLama3():
+class Llama3():
     def __init__ (self, model_id: str):
         self.modelId = model_id
         session = boto3.Session("", "")
