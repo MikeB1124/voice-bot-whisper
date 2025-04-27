@@ -1,13 +1,17 @@
 import torch
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 
-class WhisperTurbo():
+
+class WhisperTurbo:
     def __init__(self, model_id: str):
         self.device = "cuda"
         self.torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
         self.model = AutoModelForSpeechSeq2Seq.from_pretrained(
-            model_id, torch_dtype=self.torch_dtype, low_cpu_mem_usage=True, use_safetensors=True
+            model_id,
+            torch_dtype=self.torch_dtype,
+            low_cpu_mem_usage=True,
+            use_safetensors=True,
         )
         self.model.to(self.device)
 
@@ -19,7 +23,6 @@ class WhisperTurbo():
             tokenizer=self.processor.tokenizer,
             feature_extractor=self.processor.feature_extractor,
             torch_dtype=self.torch_dtype,
-            generate_kwargs={"language": "en"},
             device=self.device,
         )
 
