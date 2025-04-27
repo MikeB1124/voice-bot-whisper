@@ -9,6 +9,6 @@ eventlet
 pyaudio
 keyboard
 websockets
-webrtcvad
 silero-vad
 boto3
+piper-tts

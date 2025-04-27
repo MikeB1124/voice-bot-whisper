@@ -89,7 +89,7 @@ async def echo(websocket):
 async def main():
     async with serve(echo, "0.0.0.0", 8000) as server:
         global turboWhisper, llamaClient
-        llamaClient = Llama3("meta-llama/Llama-3.2-1B-Instruct")
+        llamaClient = Llama3("arn:aws:bedrock:us-west-2:934985413136:inference-profile/us.meta.llama3-3-70b-instruct-v1:0")
         turboWhisper = WhisperTurbo("openai/whisper-large-v3-turbo")
         print("🎙️ WebSocket VAD server started at ws://localhost:8000")
         await server.serve_forever()
