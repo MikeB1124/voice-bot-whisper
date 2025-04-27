@@ -6,7 +6,6 @@ ffmpeg-python
 transformers
 flask-socketio
 eventlet
-pyaudio
 keyboard
 websockets
 silero-vad
