@@ -11,4 +11,3 @@ keyboard
 websockets
 silero-vad
 boto3
-piper-tts
