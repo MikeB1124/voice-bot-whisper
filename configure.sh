@@ -1,6 +1,6 @@
 
 apt update -y
-apt install -y python3 git vim python3.10-venv python3-pip
+apt install -y python3 git vim python3.10-venv python3-pip ffmpeg
 
 python3 -m venv venv
 source venv/bin/activate
